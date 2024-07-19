@@ -1,0 +1,5 @@
+# Project exclude paths
+/.gradle/
+/Code-sharing Platform/task/build/
+/Code-sharing Platform/task/out/
+/Code-sharing Platform/task/out/production/classes/
