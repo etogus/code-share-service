@@ -5,7 +5,7 @@ import platform.model.CodeResponse;
 
 @Service
 public class CodeService {
-    private final CodeResponse codeResponse;
+    private CodeResponse codeResponse;
 
     public CodeService() {
         String code = "public static void main(String[] args) {\n    SpringApplication.run(CodeSharingApplication.class, args);\n}";
@@ -14,5 +14,11 @@ public class CodeService {
 
     public CodeResponse getCodeResponse() {
         return codeResponse;
+    }
+
+    public void setCodeResponse(String code) {
+        if(!code.equals(this.codeResponse.getCode())) {
+            this.codeResponse = new CodeResponse(code);
+        }
     }
 }
