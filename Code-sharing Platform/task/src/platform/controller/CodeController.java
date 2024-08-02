@@ -18,14 +18,14 @@ public class CodeController {
     private CodeService codeService;
 
     @GetMapping(value = "/code/{id}")
-    public String getCodeHtml(@PathVariable long id, Model model) {
+    public String getCodeHtml(@PathVariable Long id, Model model) {
         CodeResponse codeResponse = codeService.getCode(id);
         model.addAttribute("codeResponse", codeResponse);
         return "code";
     }
 
     @GetMapping(value = "/api/code/{id}")
-    public ResponseEntity<CodeResponse> getCodeJson(@PathVariable long id) {
+    public ResponseEntity<CodeResponse> getCodeJson(@PathVariable Long id) {
         CodeResponse codeResponse = codeService.getCode(id);
         return ResponseEntity.ok()
                 .body(codeResponse);

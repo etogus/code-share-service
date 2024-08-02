@@ -1,33 +1,31 @@
 package platform.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import platform.model.CodeResponse;
+import platform.repository.CodeResponseRepository;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CodeService {
-    private List<CodeResponse> codes = new ArrayList<>();
+    @Autowired
+    private CodeResponseRepository codeResponseRepository;
 
     public CodeResponse addCode(String code) {
-        long id = codes.size() + 1;
-        CodeResponse codeResponse = new CodeResponse(id, code);
-        codes.add(codeResponse);
-        return codeResponse;
+        CodeResponse codeResponse = new CodeResponse(code);
+        return codeResponseRepository.save(codeResponse);
     }
 
-    public CodeResponse getCode(long id) {
-        return codes.stream()
-                .filter(s -> s.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public CodeResponse getCode(Long id) {
+        return codeResponseRepository.findById(id).orElse(null);
     }
 
     public List<CodeResponse> getLatestCodes() {
-        List<CodeResponse> latestCodes = new ArrayList<>(codes);
-        Collections.reverse(latestCodes);
-        return latestCodes.subList(0, Math.min(10, latestCodes.size()));
+        List<CodeResponse> list = codeResponseRepository.findAll();
+        Collections.reverse(list);
+        return list.stream().limit(10).collect(Collectors.toList());
     }
 }
