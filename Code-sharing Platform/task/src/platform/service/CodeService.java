@@ -14,18 +14,49 @@ public class CodeService {
     @Autowired
     private CodeResponseRepository codeResponseRepository;
 
-    public CodeResponse addCode(String code) {
-        CodeResponse codeResponse = new CodeResponse(code);
+    // Add a new code snippet to the repository
+    public CodeResponse addCode(String code, int time, int views) {
+        CodeResponse codeResponse = new CodeResponse(code, time, views);
         return codeResponseRepository.save(codeResponse);
     }
 
-    public CodeResponse getCode(Long id) {
-        return codeResponseRepository.findById(id).orElse(null);
+    // Retrieve a code snippet by its UUID
+    public CodeResponse getCode(String uuid) {
+        CodeResponse codeResponse = codeResponseRepository.findByUuid(uuid).orElse(null);
+        if(codeResponse != null) {
+            // Check if time restriction has expired
+            if(codeResponse.hadTimeRestriction() && !codeResponse.hasTimeRestriction()) {
+                codeResponseRepository.delete(codeResponse);
+                return null;
+            }
+            // Check if views restriction has expired
+            if(codeResponse.hadViewsRestriction() && !codeResponse.hasViewsRestriction()) {
+                codeResponseRepository.delete(codeResponse);
+                return null;
+            }
+        }
+        if(codeResponse != null && !codeResponse.isExpired()) {
+            // Decrement views if there's a view restriction
+            if (codeResponse.hasViewsRestriction()) {
+                codeResponse.decrementViews();
+                codeResponseRepository.save(codeResponse);
+            }
+            return codeResponse;
+        }
+        // Delete expired snippets
+        if (codeResponse != null && codeResponse.isExpired()) {
+            codeResponseRepository.delete(codeResponse);
+        }
+        return null;
     }
 
+    // Get the latest unrestricted and non-expired code snippets
     public List<CodeResponse> getLatestCodes() {
         List<CodeResponse> list = codeResponseRepository.findAll();
         Collections.reverse(list);
-        return list.stream().limit(10).collect(Collectors.toList());
+        return list.stream()
+                .filter(code -> !code.isRestricted() && !code.isExpired())
+                .limit(10)
+                .collect(Collectors.toList());
     }
 }
