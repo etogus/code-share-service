@@ -1,36 +1,26 @@
-apply plugin: 'hyperskill'
-
 subprojects {
     apply plugin: 'application'
     apply plugin: 'java'
 
-    def userJava = Integer.parseInt(JavaVersion.current().getMajorVersion())
-    def hsJava = Integer.parseInt(hs.java.version)
-    def testJava = Math.max(userJava, hsJava)
+    def currentJavaVersion = Integer.parseInt(JavaVersion.current().getMajorVersion())
 
-    java.toolchain.languageVersion = JavaLanguageVersion.of(testJava)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(currentJavaVersion)
 
     compileJava {
         javaCompiler = javaToolchains.compilerFor {
-            languageVersion = JavaLanguageVersion.of(userJava)
+            languageVersion = JavaLanguageVersion.of(currentJavaVersion)
         }
     }
 
     compileTestJava {
         javaCompiler = javaToolchains.compilerFor {
-            languageVersion = JavaLanguageVersion.of(testJava)
+            languageVersion = JavaLanguageVersion.of(currentJavaVersion)
         }
     }
 
     repositories {
         mavenCentral()
-        maven { url "https://packages.jetbrains.team/maven/p/academy/hyperskill-hspc" }
 		maven { url "https://jitpack.io" }
-    }
-
-    dependencies {
-        testImplementation 'org.jsoup:jsoup:1.13.1'
-        testImplementation 'com.github.hyperskill:hs-test:release-SNAPSHOT'
     }
 
     configurations.all {
@@ -53,19 +43,6 @@ subprojects {
     }
 }
 
-project(':util') {
-    dependencies {
-        implementation 'com.github.hyperskill:hs-test:release-SNAPSHOT'
-    }
-}
-
-configure(subprojects.findAll {it.name != 'util'}) {
-    dependencies {
-        testImplementation project(':util').sourceSets.main.output
-        testImplementation project(':util').sourceSets.test.output
-    }
-}
-
 wrapper {
-    gradleVersion = hs.gradle.version
+    gradleVersion = '7.2'
 }

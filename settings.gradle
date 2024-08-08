@@ -1,22 +1,11 @@
-buildscript {
-    repositories {
-        maven { url "https://packages.jetbrains.team/maven/p/academy/hyperskill-hspc" }
-		maven { url "https://jitpack.io" }
-    }
+rootProject.name = 'code-sharing-platform'
 
-    dependencies {
-        classpath "com.github.hyperskill:hs-gradle-plugin:release-SNAPSHOT"
-    }
-
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-}
-
+// Function to sanitize project names
 static String sanitizeName(String name) {
     return name.replaceAll("[ /\\\\:<>\"?*|()]", "_").replaceAll("(^[.]+)|([.]+\$)", "")
 }
 
+// Recursively include all valid project directories
 rootProject.projectDir.eachDirRecurse {
     if (!isTaskDir(it) || it.path.contains(".idea")) {
         return
@@ -31,8 +20,7 @@ rootProject.projectDir.eachDirRecurse {
     project(":$moduleName").projectDir = it
 }
 
+// Helper function to determine if a directory is a valid project directory
 def isTaskDir(File dir) {
     return new File(dir, "src").exists() || new File(dir, "test").exists()
 }
-
-include 'util'
